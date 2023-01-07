@@ -30,9 +30,11 @@ namespace QuestMap {
             internal static readonly Vector4 NormalQuest = new(0.54f, 0.45f, 0.36f, 1);
             internal static readonly Vector4 MsqQuest = new(0.29f, 0.35f, 0.44f, 1);
             internal static readonly Vector4 BlueQuest = new(0.024F, 0.016f, 0.72f, 1);
+            internal static readonly Vector4 UnobtainableQuest = new(0.54f, 0, 0, 0.5f);
         }
 
         private Plugin Plugin { get; }
+        private Filters Filters { get; }
 
         private string _filter = string.Empty;
         private Quest? Quest { get; set; }
@@ -56,6 +58,7 @@ namespace QuestMap {
 
         internal PluginUi(Plugin plugin, ChannelReader<GraphInfo> graphChannel) {
             this.Plugin = plugin;
+            this.Filters = new Filters(plugin);
             this.GraphChannel = graphChannel;
 
             this.Refilter();
@@ -95,6 +98,9 @@ namespace QuestMap {
                     if (!this.Plugin.Config.ShowCompleted && completed) {
                         return false;
                     }
+
+                    if (!this.Plugin.Config.ShowUnobtainable && !this.Filters.IsObtainable(quest))
+                        return false;
 
                     if (this.Plugin.Config.EmoteVis == Visibility.Only && !this.Plugin.Quests.EmoteRewards.ContainsKey(quest.RowId)) {
                         return false;
@@ -209,6 +215,7 @@ namespace QuestMap {
 
                     if (ImGui.BeginMenu("Quest list")) {
                         anyChanged |= ImGui.MenuItem("Show completed quests", null, ref this.Plugin.Config.ShowCompleted);
+                        anyChanged |= ImGui.MenuItem("Show unobtainable quests", null, ref this.Plugin.Config.ShowUnobtainable);
                         anyChanged |= ImGui.MenuItem("Show seasonal quests", null, ref this.Plugin.Config.ShowSeasonal);
 
                         ImGui.EndMenu();
@@ -289,7 +296,7 @@ namespace QuestMap {
                         var (quest, indent, drawItem) = this.FilteredQuests[row];
 
                         void DrawSelectable(string name, Quest quest) {
-                            var completed = this.Plugin.Common.Functions.Journal.IsQuestCompleted(quest);
+                            var completed = this.Plugin.Common.Functions.Journal.IsQuestCompleted(quest) || !this.Filters.IsObtainable(quest);
                             if (completed) {
                                 Vector4 disabled;
                                 unsafe {
@@ -840,6 +847,9 @@ namespace QuestMap {
                 if (completed) {
                     colour.W = .5f;
                     textColour = (uint) ((0x80 << 24) | (textColour & 0xFFFFFF));
+                } else if (!this.Filters.IsObtainable(quest)) {
+                    colour = Colours.UnobtainableQuest;
+                    textColour = (uint)((0x80 << 24) | (textColour & 0xFFFFFF));
                 }
 
                 var end = canvasBottomRight - this.GetBottomRight(node);

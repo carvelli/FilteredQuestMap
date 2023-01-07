@@ -33,7 +33,8 @@ namespace QuestMap {
         internal PluginUi Ui { get; }
         private Commands Commands { get; }
 
-        public Plugin() {
+        public Plugin(DalamudPluginInterface pi) {
+            pi.Inject(this); // not sure why [PluginInterface] above aren't initialized by dalamud, but they're null
             this.Common = new XivCommonBase();
             this.Config = this.Interface.GetPluginConfig() as Configuration ?? new Configuration();
 

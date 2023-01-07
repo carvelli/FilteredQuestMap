@@ -7,6 +7,7 @@ namespace QuestMap {
         public int Version { get; set; } = 1;
 
         public bool ShowCompleted;
+        public bool ShowUnobtainable;
         public bool ShowSeasonal;
         public bool ShowArrowheads;
         public bool CondenseMsq;
