@@ -238,6 +238,8 @@ namespace QuestMap
             new ReplacedQuest(66_958, 68_554), // Glamour prism crafting
             new ReplacedQuest(66_097, 67_823), // ARR Relics: The Vital Title
             new UnobtainableQuest(67_819), // A Seat at the Feast
+            new UnobtainableQuest(66_033), // But I Hardly Noah
+            new UnobtainableQuest(66_034), // The Gift of the Archmagus
         };
 
         public Filters(Plugin plugin)
